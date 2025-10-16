@@ -8,27 +8,26 @@ on:
       - main
 
 permissions:
-    contents: write
-    id-token: write
-    pull_requests: write
-    issues: write
+  contents: write
+  id-token: write
+  pull-requests: write
+  issues: write
 
-jobs:  
+jobs:
   terraform-plan:
-    name: 'Terraform Plan'
+    name: Terraform Plan
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-22.04
     defaults:
       run:
         working-directory: ./infrastructure/dev/stacks
-    
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v5
-      with:
-        ref: ${{ github.event_name.heads.ref }}
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
       - name: setup Terraform
         uses: hashicorp/setup-terraform@v5
         with:
@@ -46,13 +45,11 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Terraform Init
         id: init
         run: terragrunt run-all init --terragrunt-non-interactive
-        
+
       - name: validate Terraform
         id: validate
         run: terragrunt run-all validate --terragrunt-non-interactive
@@ -64,10 +61,9 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: terragrunt run-all plan --terragrunt-non-interactive
-  
-        
+
   terraform-apply:
-    name: 'Terraform Apply'
+    name: Terraform Apply
     if: github.event_name == 'push'
     runs-on: ubuntu-22.04
     defaults:
@@ -97,7 +93,7 @@ jobs:
           aws-region: us-east-1
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-     
+
       - name: Terraform Init
         id: init
         run: terragrunt run-all init --terragrunt-non-interactive
