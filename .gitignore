@@ -416,3 +416,23 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+# Terraform / Terragrunt caches (NEVER COMMIT)
+**/.terraform/
+**/.terragrunt-cache/
+
+# Terraform state (never commit)
+*.tfstate
+*.tfstate.*
+
+# Optional: if you prefer to keep lockfile committed, delete this next line
+# .terraform.lock.hcl
+# Terraform / Terragrunt caches (NEVER COMMIT)
+**/.terraform/
+**/.terragrunt-cache/
+
+# Terraform state (never commit)
+*.tfstate
+*.tfstate.*
+
+# Optional: if you prefer to keep lockfile committed, delete this next line
+# .terraform.lock.hcl
