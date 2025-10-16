@@ -10,7 +10,7 @@ on:
 permissions:
     contents: write
     id-token: write
-    pull_request: write
+    pull_requests: write
     issues: write
 
 jobs:  
@@ -23,7 +23,7 @@ jobs:
         working-directory: ./infrastructure/dev/stacks
     
     steps:
-    - names: Checkout
+    - name: Checkout
       uses: actions/checkout@v5
       with:
         ref: ${{ github.event_name.heads.ref }}
@@ -64,8 +64,8 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: terragrunt run-all plan --terragrunt-non-interactive
-
-
+  
+        
   terraform-apply:
     name: 'Terraform Apply'
     if: github.event_name == 'push'
