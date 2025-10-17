@@ -1,0 +1,105 @@
+name: Terraform plan and apply
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  terraform-plan:
+    name: Terraform Plan
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: ./infrastructure/dev/stacks
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.4"
+          terraform_wrapper: true
+
+      - name: setup Terragrunt
+        uses: autero1/setup-terragrunt@v5
+        with:
+          terragrunt_version: "0.63.1"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Terraform Init
+        id: init
+        run: terragrunt run-all init --terragrunt-non-interactive
+
+      - name: Validate Terraform
+        id: validate
+        run: terragrunt run-all validate --terragrunt-non-interactive
+
+      - name: Terraform Format
+        id: format
+        run: terragrunt run-all fmt --terragrunt-non-interactive
+
+      - name: Terraform Plan
+        id: plan
+        run: terragrunt run-all plan --terragrunt-non-interactive
+
+  terraform-apply:
+    name: Terraform Apply
+    if: github.event_name == 'push'
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: ./infrastructure/dev/stacks
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.7.4"
+          terraform_wrapper: true
+
+      - name: setup Terragrunt
+        uses: autero1/setup-terragrunt@v5
+        with:
+          terragrunt_version: "0.63.1"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Terraform Init
+        id: init
+        run: terragrunt run-all init --terragrunt-non-interactive
+
+      - name: Terraform Apply
+        id: apply
+        run: terragrunt run-all apply --terragrunt-non-interactive

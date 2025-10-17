@@ -1,0 +1,63 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This Template will create an IAM user, group and policy, and add the user to the group.
+
+Parameters:
+  UserName:
+    Type: String
+    Description: Name of the IAM user to be created
+  GroupName:
+    Type: String
+    Description: Name of the IAM group to be created
+  PolicyName:
+    Type: String
+    Description: Name of the IAM policy to be created
+  TagKey:
+    Type: String
+    Description: Key for the tag to be applied to the IAM user
+  TagValue:
+    Type: String
+    Description: Value for the tag to be applied to the IAM user
+
+Resources:
+  MyFirstGroup:
+    Type: AWS::IAM::Group
+    Properties:
+      GroupName: !Ref GroupName
+
+  MyFirstIAMuser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref UserName
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/job-function/ViewOnlyAccess
+      Tags:
+        - Key: !Ref TagKey
+          Value: !Ref TagValue
+      # (Optional alternative to UserToGroupAddition)
+      # Groups:
+      #   - !Ref MyFirstGroup
+
+  AddUserToGroup:
+    Type: AWS::IAM::UserToGroupAddition
+    Properties:
+      GroupName: !Ref MyFirstGroup          # <— reference the resource, not the param
+      Users:
+        - !Ref MyFirstIAMuser               # <— reference the resource, not the param
+
+  MyFirstPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Ref PolicyName
+      Groups:
+        - !Ref MyFirstGroup                 # <— reference the resource, not the param
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowS3Access
+            Effect: Allow
+            Action:
+              - "s3:GetAccessGrants"
+              - "s3:GetAccessGrantsInstance"
+              - "s3:GetAccessGrantsInstanceForPrefix"
+              - "s3:GetAccessGrantsInstanceResourcePolicy"
+            Resource: "*"
