@@ -21,6 +21,7 @@ jobs:
     defaults:
       run:
         working-directory: ./infrastructure/dev/stacks
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -33,12 +34,10 @@ jobs:
           terraform_version: "1.7.4"
           terraform_wrapper: true
 
-      - name: Install Terragrunt
-        run: |
-          TG_VERSION="0.63.1"
-          curl -L "https://github.com/gruntwork-io/terragrunt/releases/download/v${TG_VERSION}/terragrunt_linux_amd64" -o terragrunt
-          sudo install terragrunt /usr/local/bin/terragrunt
-          terragrunt --version
+      - name: setup Terragrunt
+        uses: autero1/setup-terragrunt@v5
+        with:
+          terragrunt_version: "0.63.1"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -72,6 +71,7 @@ jobs:
     defaults:
       run:
         working-directory: ./infrastructure/dev/stacks
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -82,12 +82,10 @@ jobs:
           terraform_version: "1.7.4"
           terraform_wrapper: true
 
-      - name: Install Terragrunt
-        run: |
-          TG_VERSION="0.63.1"
-          curl -L "https://github.com/gruntwork-io/terragrunt/releases/download/v${TG_VERSION}/terragrunt_linux_amd64" -o terragrunt
-          sudo install terragrunt /usr/local/bin/terragrunt
-          terragrunt --version
+      - name: setup Terragrunt
+        uses: autero1/setup-terragrunt@v5
+        with:
+          terragrunt_version: "0.63.1"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
